@@ -37,7 +37,7 @@ def main():
         print(f"User prompt: {prompt_text}")
         print(f"Prompt tokens: {prompt_token_count}")
         print(f"Response tokens: {response_token_count}")
-    if response.function_calls != None:
+    if response.function_calls is not None:
         for function_call in response.function_calls:
             print(f"Calling function: {function_call.name}({function_call.args})")
     else:
