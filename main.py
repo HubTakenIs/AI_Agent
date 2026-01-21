@@ -1,10 +1,13 @@
 import argparse
 import os
+
+from google.genai.types import FunctionResponse
+
 from prompts import system_prompt
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from call_function import available_functions
+from call_function import available_functions, call_function
 
 def main():
     load_dotenv()
@@ -38,8 +41,20 @@ def main():
         print(f"Prompt tokens: {prompt_token_count}")
         print(f"Response tokens: {response_token_count}")
     if response.function_calls is not None:
+        function_results = []
         for function_call in response.function_calls:
             print(f"Calling function: {function_call.name}({function_call.args})")
+            function_call_result = call_function(function_call)
+            if function_call_result.parts is None:
+                raise Exception("No function call result")
+            function_response = function_call_result.parts[0].function_response
+            if function_response is None:
+                raise Exception("No function call result")
+            if function_response.response is None:
+                raise Exception("No function call result")
+            function_results.append(function_call_result.parts[0])
+            if args.verbose:
+                print(f"-> {function_call_result.parts[0].function_response.response}")
     else:
         print("Response: ")
         print(response.text)
